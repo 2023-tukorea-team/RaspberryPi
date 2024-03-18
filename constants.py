@@ -1,0 +1,10 @@
+# -*- coding: euc-kr -*-
+SERVER_IP = "15.164.151.155";
+SERVER_PORT = "8080";
+SERVER_CONNECT_LOADING_TEXT = "서버와 통신 중입니다.";
+SERVER_CONNECT_DELAYED_TEXT = "서버와의 통신이 지연되고 있습니다.";
+SERVER_CONNECT_SUCCEED_TEXT = "서버와 통신에 성공했습니다.";
+BLUETOOTH_GUIDE_TEXT = "통신할 OBD2 Bluetooth Adapter를 선택하세요.";
+BLUETOOTH_CONNECT_TEXT = "연결";
+BLUETOOTH_SCAN_TEXT = "장치 검색";
+BLUETOOTH_PORT = 1;

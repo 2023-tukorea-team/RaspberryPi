@@ -1,0 +1,1 @@
+CHECK_ID = "sensor/checkid"
