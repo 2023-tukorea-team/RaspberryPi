@@ -1,1 +1,2 @@
-CHECK_ID = "sensor/checkid"
+CHECK_ID = "sensor/checkid";
+LOG = "sensor/log";

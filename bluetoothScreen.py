@@ -1,24 +1,36 @@
 # -*- coding: euc-kr -*-
 import sys;
 import constants;
-from btClientService import *;
+from obd2ClientService import *;
 from serverConnect import *;
 from loadingTextLabel import *;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
+from  PyQt5.QtGui import *;
 from time import sleep;
+from acceptDialog import *;
 
 class BluetoothScreen(QWidget):
-	requestWork = pyqtSignal();
-	def __init__(self):
+	requestWork = pyqtSignal(int);
+	def __init__(self,  obd2ClientService):
 		super().__init__();
 		self.devices = [];
 		self.layout = QVBoxLayout();
 
+		width = self.width();
+		height = self.height();
+		self.backIcon = QIcon("back.png");
+		self.backButton = QPushButton(self);
+		self.backButton.setIcon(self.backIcon);
+		self.backButton.setIconSize(QSize(width * 0.06, width * 0.06));
+		self.backButton.setStyleSheet("border: none;");
+		self.backButton.setGeometry(width * 0.02, height * 0.02, width * 0.06, width * 0.06);		
+		self.backButton.clicked.connect(lambda: self.requestWork.emit(constants.HOME_PAGE));
+
 		self.bluetoothGuideLabel = QLabel(constants.BLUETOOTH_GUIDE_TEXT);
 		self.layout.addWidget(self.bluetoothGuideLabel);
 		self.bluetoothGuideLabel.setStyleSheet("font-size:24px;");
-		self.btClientService = BtClientService();
+		self.obd2ClientService = obd2ClientService;
 
 		self.listView = QListView();
 		self.layout.addWidget(self.listView);
@@ -60,6 +72,9 @@ class BluetoothScreen(QWidget):
 		rightMargin = width * 0.1;
 		bottomMargin = height * 0.1;
 		self.layout.setContentsMargins(leftMargin, topMargin, rightMargin, bottomMargin);
+		self.backButton.setIconSize(QSize(width * 0.06, width * 0.06));
+		self.backButton.setStyleSheet("border: none;");
+		self.backButton.setGeometry(width * 0.02, height * 0.02, width * 0.06, width * 0.06);
 
 	def scanButtonClicked(self, event):			
 		self.connectButton.setEnabled(False);
@@ -72,7 +87,7 @@ class BluetoothScreen(QWidget):
 
 		QApplication.processEvents();
 
-		self.devices = self.btClientService.scanDevices();
+		self.devices = self.obd2ClientService.scanDevices();
 		self.connectButton.setEnabled(True);
 		self.connectButton.setStyleSheet("color: black; font-size: 24px;");
 		self.scanButton.setEnabled(True);
@@ -89,20 +104,21 @@ class BluetoothScreen(QWidget):
 	def connectButtonClicked(self, event):
 		self.selectedDevice = self.getSelectedDevice();
 		if self.selectedDevice == None :
-			dialog = ConnectDialog("선택된 장치가 없습니다");
+			dialog = AcceptDialog("선택된 장치가 없습니다");
+			dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 			dialog.exec_();
 			return;
 		print(self.selectedDevice[0]);
 		print(constants.BLUETOOTH_PORT);
-		self.btClientService.makeConnect(self.selectedDevice[0], constants.BLUETOOTH_PORT);
-		if self.btClientService.isConnected():
-			dialog = ConnectDialog("장치 연결 성공");
+		self.obd2ClientService.makeConnect(self.selectedDevice[1], self.selectedDevice[0], constants.BLUETOOTH_PORT);
+		if self.obd2ClientService.isConnected():
+			dialog = AcceptDialog("장치 연결 성공");
+			dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 			dialog.exec_();
-			return;
 		else:
-			dialog = ConnectDialog("장치 연결 실패");
+			dialog = AcceptDialog("장치 연결 실패");
+			dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 			dialog.exec_();
-			return;
 		pass;
 
 	def getSelectedDevice(self):
@@ -117,27 +133,8 @@ class BluetoothScreen(QWidget):
 		else :
 			return None;
 
-class ConnectDialog(QDialog):
-	def __init__(self, text):
-		super().__init__();
-		self.setWindowFlag(Qt.FramelessWindowHint);
-		layout = QVBoxLayout();
-		label = QLabel(text);
-		label.setStyleSheet("font-size:24px;");
-		button = QPushButton("확인")
-		button.setStyleSheet("font-size:24px;");
-		button.clicked.connect(self.accept)
-		layout.addWidget(label);
-		layout.addWidget(button);
-		self.setLayout(layout);
-
-	def resizeEvent(self, event):
-		width = QDesktopWidget().screenGeometry().width();
-		height = QDesktopWidget().screenGeometry().height();
-		self.resize(width * 0.2, height * 0.2);
-		
 if __name__ == "__main__" :
 	app = QApplication(sys.argv)
-	bluetoothScreen = BluetoothScreen();
+	bluetoothScreen = BluetoothScreen(Obd2ClientService());
 	bluetoothScreen.show()
 	sys.exit(app.exec_());

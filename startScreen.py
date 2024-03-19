@@ -8,14 +8,14 @@ from PyQt5.QtCore import *;
 from time import sleep;
 
 class StartScreen(QWidget):
-	requestWork = pyqtSignal();
-	def __init__(self):
+	requestWork = pyqtSignal(int);
+	def __init__(self, serverConnect):
 		super().__init__();
 		self.layout = QVBoxLayout();
 		self.loadingTextLabel = LoadingTextLabel(constants.SERVER_CONNECT_LOADING_TEXT);
 
 		self.timer = QTimer(self);
-		self.serverConnect = ServerConnect();
+		self.serverConnect = serverConnect;
 		self.setLayout(self.layout);
 
 	def showEvent(self, event):
@@ -39,12 +39,11 @@ class StartScreen(QWidget):
 		self.loadingTextLabel.resetCount();
 		self.loadingTextLabel.stopCount();
 		self.loadingTextLabel.setText(constants.SERVER_CONNECT_SUCCEED_TEXT);
-		self.timer.timeout.connect(self.signalNextPageToMain);
+		self.timer.timeout.connect(self.openHomePage);
 		self.timer.start(2000);
-
-	def signalNextPageToMain(self):
+	def openHomePage(self):
 		self.timer.stop();
-		self.requestWork.emit();
+		self.requestWork.emit(constants.HOME_PAGE)
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

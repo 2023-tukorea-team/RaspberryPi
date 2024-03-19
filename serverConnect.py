@@ -22,6 +22,24 @@ class ServerConnect:
 		else :
 			return  False;
 
+	def sendLog(self, start, door, person, speed, warning):
+		url = self.serverAddress+ query.LOG;
+		data = { 'id' : self.macAddress, 'start' : start, 'door' : door, 'person' : person, 'speed' : speed, 'warning':warning };
+		print(data);
+		response = requests.post(url, json=data);
+		if response.status_code == 200:
+			result = response.json()
+			print(result);
+			if result['result'] == False : 
+				print("server DB Error");
+				return False;
+			return True;
+		else:
+			return False;
+
+	def getMacAddress(self):
+		return self.macAddress;
+
 if __name__ == "__main__" :
 	serverConnect = ServerConnect();
 	print(serverConnect.connectConfirm());

@@ -1,4 +1,4 @@
-import bluetooth
+import bluetooth;
 
 class BtClientService:
 	def __init__(self):
@@ -10,12 +10,14 @@ class BtClientService:
 			print(f"Device Name: {name}, Address: {addr}");
 		return devices;
 
-	def makeConnect(self, device_addr, port):
+	def makeConnect(self, name, device_addr, port):
 		try:
 			if self.isConnected() :
 				self.clientSock.close();
 			self.clientSock = bluetooth.BluetoothSocket(bluetooth.RFCOMM);
 			self.clientSock.connect((device_addr, port));
+			self.connectedName = name;
+			self.connectedAddr = device_addr;
 
 			print(f"Connected to {device_addr} on port {port}");
 		except Exception as e:
@@ -44,13 +46,13 @@ class BtClientService:
 
 	def recvStr(self, len):
 		if not self.isConnected() :
-			return None;
+			return "";
 		try:
 			str = self.clientSock.recv(len);
 			return str;
 		except Exception as e:
 			print(f"Recv Failed: {e}")
-			return None;
+			return "";
 
 if __name__ == "__main__":
 	test = BtClientService();
