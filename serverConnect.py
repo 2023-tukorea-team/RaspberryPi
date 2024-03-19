@@ -5,7 +5,7 @@ import netifaces;
 
 class ServerConnect:
 	def __init__(self):
-		self.serverAddress = "http://" + constants.SERVER_IP + ":" + constants.SERVER_PORT + "/" ;
+		self.serverAddress = "http://" + constants.SERVER_IP_TEXT + ":" + constants.SERVER_PORT_TEXT + "/" ;
 		self.macAddress = netifaces.ifaddresses('eth0')[netifaces.AF_LINK][0]['addr'];
 
 	def connectConfirm(self):

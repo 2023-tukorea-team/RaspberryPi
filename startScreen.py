@@ -6,6 +6,7 @@ from loadingTextLabel import *;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
 from time import sleep;
+from acceptDialog import *;
 
 class StartScreen(QWidget):
 	requestWork = pyqtSignal(int);
@@ -41,6 +42,7 @@ class StartScreen(QWidget):
 		self.loadingTextLabel.setText(constants.SERVER_CONNECT_SUCCEED_TEXT);
 		self.timer.timeout.connect(self.openHomePage);
 		self.timer.start(2000);
+		
 	def openHomePage(self):
 		self.timer.stop();
 		self.requestWork.emit(constants.HOME_PAGE)

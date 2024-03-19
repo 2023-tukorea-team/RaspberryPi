@@ -8,6 +8,7 @@ from homeScreen import *;
 from requestScreen import *;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
+import paho.mqtt.client as mqtt;
 
 class Main(QMainWindow):
 	def __init__(self):
@@ -37,6 +38,22 @@ class Main(QMainWindow):
 		self.widgetList[constants.HOME_PAGE].requestWork.connect(self.openScreen);
 
 		self.openScreen(constants.START_PAGE);
+
+		self.mqttClient = mqtt.Client();
+		self.mqttClient.on_connect = self.onConnect;
+		self.mqttClient.username_pw_set(username=constants.MQTT_ID_TEXT, password=constants.MQTT_PWD_TEXT);
+		self.mqttClient.connect(constants.SERVER_IP_TEXT, constants.MQTT_PORT);
+		self.mqttClient.on_message = self.widgetList[constants.REQUEST_PAGE].addRequest;
+		self.mqttClient.loop_start();
+
+	def onConnect(self, client, userdata, flags, rc):
+		print("Connected with result code " + str(rc));
+		topic = constants.MQTT_TOPIC_LOOT_TEXT;
+		topic += "/";
+		topic += self.serverConnect.getMacAddress();
+		print(topic);
+		client.subscribe(topic);
+
 
 	def keyPressEvent(self, event):
 		if event.key() == Qt.Key_Escape:

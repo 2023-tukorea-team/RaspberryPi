@@ -20,15 +20,15 @@ class HomeScreen(QWidget):
 
 		self.serverConnect = serverConnect;
 
-		self.bluetoothButton = QPushButton("블루투스 연결 페이지");
+		self.bluetoothButton = QPushButton(constants.BLUETOOTH_PAGE_BUTTON_TEXT);
 		self.bluetoothButton.setStyleSheet("font-size:24px;");
 		self.bluetoothButton.clicked.connect(lambda: self.requestWork.emit(constants.BLUETOOTH_PAGE));
 
-		self.requestButton = QPushButton("조회 수락 요청 페이지");
+		self.requestButton = QPushButton(constants.REQUEST_PAGE_BUTTON_TEXT);
 		self.requestButton.setStyleSheet("font-size:24px;");
 		self.requestButton.clicked.connect(lambda: self.requestWork.emit(constants.REQUEST_PAGE));
 
-		self.testServerConnectButton = QPushButton("서버 연결 테스트");
+		self.testServerConnectButton = QPushButton(constants.SERVER_CONNECT_CHECK_BUTTON_TEXT);
 		self.testServerConnectButton.setStyleSheet("font-size:24px;");
 		self.testServerConnectButton.clicked.connect(self.testServerConnect);
 		self.layout.addWidget(self.testServerConnectButton);
@@ -41,21 +41,28 @@ class HomeScreen(QWidget):
 		self.connectedLabel.setStyleSheet("font-size:24px;");
 		self.layout.addWidget(self.connectedLabel);
 
-		self.carStartLabel = QLabel("시동 : ");
+		self.carStartLabel = QLabel(f"{constants.CAR_START_TEXT} : ");
 		self.carStartLabel.setStyleSheet("font-size:24px;");
 		self.layout.addWidget(self.carStartLabel);
 
-		self.vehicleSpeedLabel = QLabel("속도 : ");
+		self.vehicleSpeedLabel = QLabel(f"{constants.VEHICLE_SPEED_TEXT} : ");
 		self.vehicleSpeedLabel.setStyleSheet("font-size:24px;");
 		self.layout.addWidget(self.vehicleSpeedLabel);
 
-		self.doorLockLabel = QLabel("문 잠금 : ");
+		self.doorLockLabel = QLabel(f"{constants.DOOR_LOCK_TEXT} : ");
 		self.doorLockLabel.setStyleSheet("font-size:24px;");
 		self.layout.addWidget(self.doorLockLabel);
+
+		self.warningLabel = QLabel(f"{constants.WARNING_TEXT} : ");
+		self.warningLabel.setStyleSheet("font-size:24px;");
+		self.layout.addWidget(self.warningLabel);
 
 		self.updateTimer = QTimer(self);
 		self.updateTimer.timeout.connect(self.update);
 		self.updateTimer.start(100);
+
+		self.updateCount = 0;	
+		self.failedDialogExist = False;
 
 	def testServerConnect(self):
 		if self.serverConnect.connectConfirm() :
@@ -63,8 +70,9 @@ class HomeScreen(QWidget):
 		else :
 			AcceptDialog("fail").exec_();
 	def update(self):
+		self.updateCount += 1;
 		if self.obd2ClientService.isConnected() :
-			self.connectedLabel.setText("obd2 Bluetooth Adapter : 연결됨");
+			self.connectedLabel.setText(constants.OBD2_CONNECTED_TEXT);
 
 			carStart = None;
 			try:
@@ -87,21 +95,31 @@ class HomeScreen(QWidget):
 				print(f"Recv Failed : {e}");
 				return;
 		
-			self.carStartLabel.setText(f"시동 : {carStart}");
-			self.vehicleSpeedLabel.setText(f"속도 : {vehicleSpeed}");
-			self.doorLockLabel.setText(f"문 잠금 : {doorLock}");
-			if self.serverConnect.sendLog(int(carStart), int(not doorLock), 1, vehicleSpeed, 1) :
-				print("send log Succeed");
-			else :
-				print("send log Failed");
-				AcceptDialog("send log Failed").exec_();
+			self.carStartLabel.setText(f"{constants.CAR_START_TEXT} : {carStart}");
+			self.vehicleSpeedLabel.setText(f"{constants.VEHICLE_SPEED_TEXT} : {vehicleSpeed}");
+			self.doorLockLabel.setText(f"{constants.DOOR_LOCK_TEXT} : {doorLock}");
+			warningDetailText = "";
+			if self.isHumanDetected():
+				warningDetailText = constants.WARNING_HUMAN_DETECTED_TEXT;
+			self.warningLabel.setText(f"{constants.WARNING_TEXT} : {warningDetailText}");
+			if self.updateCount * constants.SENSOR_GET_DATA_CYCLE > constants.SEND_LOG_CYCLE :
+				if self.serverConnect.sendLog(int(carStart), int(not doorLock), int(self.isHumanDetected()), vehicleSpeed, self.warningNumber()) :
+					print("send log Succeed");
+				else :
+					print("send log Failed");
+				self.updateCount = 0;
 
 		else :
-			self.connectedLabel.setText("obd2 Bluetooth Adapter : 연결되어 있지 않음");
+			self.connectedLabel.setText(constants.OBD2_NOT_CONNECTED_TEXT);
 		pass;
 	def showEvent(self, event):
 		self.update();
 
+	def isHumanDetected(self):
+		return True;
+	
+	def warningNumber(self):
+		return 1;
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	homeScreen = HomeScreen(Obd2ClientService());
