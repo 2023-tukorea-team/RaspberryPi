@@ -1,2 +1,2 @@
 # RaspberryPi
-코드 갈아엎음
+python3 main.py
