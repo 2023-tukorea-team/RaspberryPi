@@ -9,7 +9,7 @@ class LoadingTextLabel(QLabel):
 		self.index = 0;
 		self.text = text;
 		self.setText(self.text);
-		self.setStyleSheet("font-size:30px;");
+		self.setStyleSheet("font-size:36px;");
 		self.setAlignment(Qt.AlignCenter);
 		self.timer = QTimer(self);
 

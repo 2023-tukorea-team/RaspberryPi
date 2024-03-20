@@ -28,17 +28,17 @@ class RequestScreen(QWidget):
 
 		self.acceptGuideLabel = QLabel(constants.ACCEPT_GUIDE_TEXT);
 		self.layout.addWidget(self.acceptGuideLabel);
-		self.acceptGuideLabel.setStyleSheet("font-size:24px;");
+		self.acceptGuideLabel.setStyleSheet("font-size:36px;");
 
 		self.listView = QListView();
 		self.layout.addWidget(self.listView);
 		self.model = QStringListModel();
 		self.listView.setModel(self.model);
-		self.listView.setStyleSheet("font-size:24px;");
+		self.listView.setStyleSheet("font-size:36px;");
 		self.selectedRequest = None;
 
 		self.deleteButton = QPushButton(constants.DELETE_TEXT);
-		self.deleteButton.setStyleSheet("font-size:24px;");
+		self.deleteButton.setStyleSheet("font-size:36px;");
 		self.deleteButton.clicked.connect(self.deleteButtonClicked);
 
 		self.layout.addWidget(self.deleteButton);

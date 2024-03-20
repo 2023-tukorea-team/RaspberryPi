@@ -29,14 +29,14 @@ class BluetoothScreen(QWidget):
 
 		self.bluetoothGuideLabel = QLabel(constants.BLUETOOTH_GUIDE_TEXT);
 		self.layout.addWidget(self.bluetoothGuideLabel);
-		self.bluetoothGuideLabel.setStyleSheet("font-size:24px;");
+		self.bluetoothGuideLabel.setStyleSheet("font-size:36px;");
 		self.obd2ClientService = obd2ClientService;
 
 		self.listView = QListView();
 		self.layout.addWidget(self.listView);
 		self.model = QStringListModel();
 		self.listView.setModel(self.model);
-		self.listView.setStyleSheet("font-size:24px;");
+		self.listView.setStyleSheet("font-size:36px;");
 		self.selectedDevice = None;
 
 		self.buttonLayout = QHBoxLayout();
@@ -44,11 +44,11 @@ class BluetoothScreen(QWidget):
 		self.scanButton = QPushButton(constants.BLUETOOTH_SCAN_TEXT, self);
 
 		self.buttonLayout.addWidget(self.connectButton);
-		self.connectButton.setStyleSheet("font-size:24px;");
+		self.connectButton.setStyleSheet("font-size:36px;");
 		self.connectButton.clicked.connect(self.connectButtonClicked);
 
 		self.buttonLayout.addWidget(self.scanButton);
-		self.scanButton.setStyleSheet("font-size:24px;");
+		self.scanButton.setStyleSheet("font-size:36px;");
 		self.scanButton.clicked.connect(self.scanButtonClicked);
 
 		self.layout.addLayout(self.buttonLayout);
@@ -78,20 +78,20 @@ class BluetoothScreen(QWidget):
 
 	def scanButtonClicked(self, event):			
 		self.connectButton.setEnabled(False);
-		self.connectButton.setStyleSheet("color: gray; font-size: 24px;");
+		self.connectButton.setStyleSheet("color: gray; font-size: 36px;");
 		self.connectButton.update();
 
 		self.scanButton.setEnabled(False);
-		self.scanButton.setStyleSheet("color: gray; font-size: 24px;");
+		self.scanButton.setStyleSheet("color: gray; font-size: 36px;");
 		self.scanButton.update();
 
 		QApplication.processEvents();
 
 		self.devices = self.obd2ClientService.scanDevices();
 		self.connectButton.setEnabled(True);
-		self.connectButton.setStyleSheet("color: black; font-size: 24px;");
+		self.connectButton.setStyleSheet("color: black; font-size: 36px;");
 		self.scanButton.setEnabled(True);
-		self.scanButton.setStyleSheet("color: black; font-size: 24px;");
+		self.scanButton.setStyleSheet("color: black; font-size: 36px;");
 
 		print("scan Á¾·á");
 		tmp = [];

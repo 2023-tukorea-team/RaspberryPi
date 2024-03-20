@@ -26,6 +26,8 @@ class Main(QMainWindow):
 		self.task.start();
 		self.lock = threading.Lock();
 
+		self.uwbData = 0;
+
 		self.widgetList = [];
 		self.stack = QStackedWidget();
 		self.setCentralWidget(self.stack);
@@ -56,9 +58,6 @@ class Main(QMainWindow):
 
 	def closeEvent(self, event):
 		self.running = False;
-		raise Exception("abc");
-		self.task.join();
-
 	def onConnect(self, client, userdata, flags, rc):
 		print("Connected with result code " + str(rc));
 		topic = constants.MQTT_TOPIC_LOOT_TEXT;
@@ -85,7 +84,7 @@ class Main(QMainWindow):
 				distance = self.serial.readline().decode('utf-8').strip();
 				if len(distance) == 0 :
 					continue;
-				self.uwbData = distance;
+				self.uwbData = float(distance);
 				print("Received:", distance);
 			except KeyboardInterrupt:
 				self.serial.close();
@@ -95,7 +94,6 @@ class Main(QMainWindow):
 				self.serial.close();
 				self.serial = serial.Serial('/dev/ttyS0', 9600);
 				pass;
-		raise Exception("abc");
 		self.serial.close();
 
 	def getUwbData(self):

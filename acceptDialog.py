@@ -16,10 +16,10 @@ class AcceptDialog(QDialog):
 		self.setStyleSheet("border: 1px solid black;");
 		layout = QVBoxLayout();
 		label = QLabel(text);
-		label.setStyleSheet("font-size:24px; border: none;");
+		label.setStyleSheet("font-size:36px; border: none;");
 
 		button = QPushButton("»Æ¿Œ")
-		button.setStyleSheet("font-size:24px;");
+		button.setStyleSheet("font-size:36px;");
 		button.clicked.connect(self.accept)
 		layout.addWidget(label);
 		layout.addWidget(button);

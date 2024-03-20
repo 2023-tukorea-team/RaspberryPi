@@ -22,15 +22,15 @@ class HomeScreen(QWidget):
 		self.getUwbData = getUwbData;
 
 		self.bluetoothButton = QPushButton(constants.BLUETOOTH_PAGE_BUTTON_TEXT);
-		self.bluetoothButton.setStyleSheet("font-size:24px;");
+		self.bluetoothButton.setStyleSheet("font-size:36px;");
 		self.bluetoothButton.clicked.connect(lambda: self.requestWork.emit(constants.BLUETOOTH_PAGE));
 
 		self.requestButton = QPushButton(constants.REQUEST_PAGE_BUTTON_TEXT);
-		self.requestButton.setStyleSheet("font-size:24px;");
+		self.requestButton.setStyleSheet("font-size:36px;");
 		self.requestButton.clicked.connect(lambda: self.requestWork.emit(constants.REQUEST_PAGE));
 
 		self.testServerConnectButton = QPushButton(constants.SERVER_CONNECT_CHECK_BUTTON_TEXT);
-		self.testServerConnectButton.setStyleSheet("font-size:24px;");
+		self.testServerConnectButton.setStyleSheet("font-size:36px;");
 		self.testServerConnectButton.clicked.connect(self.testServerConnect);
 		self.layout.addWidget(self.testServerConnectButton);
 
@@ -39,27 +39,27 @@ class HomeScreen(QWidget):
 		self.setLayout(self.layout);
 
 		self.connectedLabel = QLabel("");
-		self.connectedLabel.setStyleSheet("font-size:24px;");
+		self.connectedLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.connectedLabel);
 
 		self.carStartLabel = QLabel(f"{constants.CAR_START_TEXT} : ");
-		self.carStartLabel.setStyleSheet("font-size:24px;");
+		self.carStartLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.carStartLabel);
 
 		self.vehicleSpeedLabel = QLabel(f"{constants.VEHICLE_SPEED_TEXT} : ");
-		self.vehicleSpeedLabel.setStyleSheet("font-size:24px;");
+		self.vehicleSpeedLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.vehicleSpeedLabel);
 
 		self.doorLockLabel = QLabel(f"{constants.DOOR_LOCK_TEXT} : ");
-		self.doorLockLabel.setStyleSheet("font-size:24px;");
+		self.doorLockLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.doorLockLabel);
 
 		self.warningLabel = QLabel(f"{constants.WARNING_TEXT} : ");
-		self.warningLabel.setStyleSheet("font-size:24px;");
+		self.warningLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.warningLabel);
 
 		self.uwbLabel = QLabel(f"{constants.UWB_TEXT} : ");
-		self.uwbLabel.setStyleSheet("font-size:24px;");
+		self.uwbLabel.setStyleSheet("font-size:36px;");
 		self.layout.addWidget(self.uwbLabel);
 
 
@@ -80,38 +80,38 @@ class HomeScreen(QWidget):
 		if self.obd2ClientService.isConnected() :
 			self.connectedLabel.setText(constants.OBD2_CONNECTED_TEXT);
 
-			carStart = None;
+			self.carStart = None;
 			try:
-				carStart = self.obd2ClientService.getCarStart();
+				self.carStart = self.obd2ClientService.getCarStart();
 			except Exception as e:
 				print(f"Recv Failed : {e}");
 				return;
 
-			vehicleSpeed = 0;
+			self.vehicleSpeed = 0;
 			try:
-				vehicleSpeed = self.obd2ClientService.getVehicleSpeed();
+				self.vehicleSpeed = self.obd2ClientService.getVehicleSpeed();
 			except Exception as e:
 				print(f"Recv Failed : {e}");
 				return;
 
-			doorLock = None;
+			self.doorLock = None;
 			try:
-				doorLock = self.obd2ClientService.getDoorLock();
+				self.doorLock = self.obd2ClientService.getDoorLock();
 			except Exception as e:
 				print(f"Recv Failed : {e}");
 				return;
 		
-			self.carStartLabel.setText(f"{constants.CAR_START_TEXT} : {carStart}");
-			self.vehicleSpeedLabel.setText(f"{constants.VEHICLE_SPEED_TEXT} : {vehicleSpeed}");
-			self.doorLockLabel.setText(f"{constants.DOOR_LOCK_TEXT} : {doorLock}");
+			self.carStartLabel.setText(f"{constants.CAR_START_TEXT} : {self.carStart}");
+			self.vehicleSpeedLabel.setText(f"{constants.VEHICLE_SPEED_TEXT} : {self.vehicleSpeed}");
+			self.doorLockLabel.setText(f"{constants.DOOR_LOCK_TEXT} : {self.doorLock}");
 			self.uwbData = self.getUwbData();
 			self.uwbLabel.setText(f"{constants.UWB_TEXT} : {self.uwbData}");
 			warningDetailText = "";
-			if self.isHumanDetected():
+			if self.warningNumber() != 0:
 				warningDetailText = constants.WARNING_HUMAN_DETECTED_TEXT;
 			self.warningLabel.setText(f"{constants.WARNING_TEXT} : {warningDetailText}");
 			if self.updateCount * constants.SENSOR_GET_DATA_CYCLE > constants.SEND_LOG_CYCLE :
-				if self.serverConnect.sendLog(int(carStart), int(not doorLock), int(self.isHumanDetected()), vehicleSpeed, self.warningNumber()) :
+				if self.serverConnect.sendLog(int(self.carStart), int(not self.doorLock), int(self.isHumanDetected()), self.vehicleSpeed, self.warningNumber()) :
 					print("send log Succeed");
 				else :
 					print("send log Failed");
@@ -124,10 +124,14 @@ class HomeScreen(QWidget):
 		self.update();
 
 	def isHumanDetected(self):
-		return True;
+		if self.uwbData > constants.HUMAN_EXIST_VALUE :
+			return True;
+		return False;
 	
 	def warningNumber(self):
-		return 1;
+		if int(self.carStart) ==0 and int(self.doorLock) == 1 and self.isHumanDetected() :
+			return 1;
+		return 0;
 
 	def setUwbData(self, uwbData):
 		self.uwbData = uwbData;
