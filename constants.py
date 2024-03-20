@@ -26,6 +26,7 @@ CAR_START_TEXT = "시동";
 DOOR_LOCK_TEXT = "문 잠금";
 VEHICLE_SPEED_TEXT = "속도";
 WARNING_TEXT = "경고";
+UWB_TEXT = "uwb 데이터";
 BLUETOOTH_SCAN_TEXT = "장치 검색";
 BLUETOOTH_PORT = 1;
 BACK_ICON_PNG = "back.png";

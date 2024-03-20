@@ -9,6 +9,8 @@ from requestScreen import *;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
 import paho.mqtt.client as mqtt;
+import serial;
+import threading;
 
 class Main(QMainWindow):
 	def __init__(self):
@@ -18,12 +20,18 @@ class Main(QMainWindow):
 		self.setWindowState(Qt.WindowFullScreen)
 		self.setWindowTitle("FullScreen");
 
+		self.serial = serial.Serial('/dev/ttyS0', 9600);
+		self.running = True;
+		self.task = threading.Thread(target=self.uwbRecvTask);
+		self.task.start();
+		self.lock = threading.Lock();
+
 		self.widgetList = [];
 		self.stack = QStackedWidget();
 		self.setCentralWidget(self.stack);
 
 		self.widgetList.append(StartScreen(self.serverConnect));
-		self.widgetList.append(HomeScreen(self.obd2ClientService, self.serverConnect));
+		self.widgetList.append(HomeScreen(self.obd2ClientService, self.serverConnect, self.getUwbData));
 		self.widgetList.append(RequestScreen(self.serverConnect));
 		self.widgetList.append(BluetoothScreen(self.obd2ClientService));
 
@@ -46,6 +54,11 @@ class Main(QMainWindow):
 		self.mqttClient.on_message = self.widgetList[constants.REQUEST_PAGE].addRequest;
 		self.mqttClient.loop_start();
 
+	def closeEvent(self, event):
+		self.running = False;
+		raise Exception("abc");
+		self.task.join();
+
 	def onConnect(self, client, userdata, flags, rc):
 		print("Connected with result code " + str(rc));
 		topic = constants.MQTT_TOPIC_LOOT_TEXT;
@@ -64,6 +77,31 @@ class Main(QMainWindow):
 		print(self.widgetList[pageNum]);
 		self.stack.setCurrentWidget(self.widgetList[pageNum]);
 		return;
+
+	def uwbRecvTask(self):
+		while self.running :
+
+			try:
+				distance = self.serial.readline().decode('utf-8').strip();
+				if len(distance) == 0 :
+					continue;
+				self.uwbData = distance;
+				print("Received:", distance);
+			except KeyboardInterrupt:
+				self.serial.close();
+				print("Serial communication closed.");
+				break;
+			except Exception:
+				self.serial.close();
+				self.serial = serial.Serial('/dev/ttyS0', 9600);
+				pass;
+		raise Exception("abc");
+		self.serial.close();
+
+	def getUwbData(self):
+		with self.lock:
+			ret = self.uwbData;
+		return ret;
 		
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

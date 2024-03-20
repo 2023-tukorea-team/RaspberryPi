@@ -16,8 +16,7 @@ class AcceptDialog(QDialog):
 		self.setStyleSheet("border: 1px solid black;");
 		layout = QVBoxLayout();
 		label = QLabel(text);
-		label.setStyleSheet("font-size:24px;");
-		label.setStyleSheet("border: none;");
+		label.setStyleSheet("font-size:24px; border: none;");
 
 		button = QPushButton("»Æ¿Œ")
 		button.setStyleSheet("font-size:24px;");

@@ -12,13 +12,14 @@ from acceptDialog import *;
 
 class HomeScreen(QWidget):
 	requestWork = pyqtSignal(int);
-	def __init__(self, obd2ClientService, serverConnect):
+	def __init__(self, obd2ClientService, serverConnect, getUwbData):
 		super().__init__();
 		self.layout = QVBoxLayout();
 		self.loadingTextLabel = LoadingTextLabel(constants.SERVER_CONNECT_LOADING_TEXT);
 		self.obd2ClientService = obd2ClientService;
 
 		self.serverConnect = serverConnect;
+		self.getUwbData = getUwbData;
 
 		self.bluetoothButton = QPushButton(constants.BLUETOOTH_PAGE_BUTTON_TEXT);
 		self.bluetoothButton.setStyleSheet("font-size:24px;");
@@ -56,6 +57,11 @@ class HomeScreen(QWidget):
 		self.warningLabel = QLabel(f"{constants.WARNING_TEXT} : ");
 		self.warningLabel.setStyleSheet("font-size:24px;");
 		self.layout.addWidget(self.warningLabel);
+
+		self.uwbLabel = QLabel(f"{constants.UWB_TEXT} : ");
+		self.uwbLabel.setStyleSheet("font-size:24px;");
+		self.layout.addWidget(self.uwbLabel);
+
 
 		self.updateTimer = QTimer(self);
 		self.updateTimer.timeout.connect(self.update);
@@ -98,6 +104,8 @@ class HomeScreen(QWidget):
 			self.carStartLabel.setText(f"{constants.CAR_START_TEXT} : {carStart}");
 			self.vehicleSpeedLabel.setText(f"{constants.VEHICLE_SPEED_TEXT} : {vehicleSpeed}");
 			self.doorLockLabel.setText(f"{constants.DOOR_LOCK_TEXT} : {doorLock}");
+			self.uwbData = self.getUwbData();
+			self.uwbLabel.setText(f"{constants.UWB_TEXT} : {self.uwbData}");
 			warningDetailText = "";
 			if self.isHumanDetected():
 				warningDetailText = constants.WARNING_HUMAN_DETECTED_TEXT;
@@ -120,8 +128,11 @@ class HomeScreen(QWidget):
 	
 	def warningNumber(self):
 		return 1;
+
+	def setUwbData(self, uwbData):
+		self.uwbData = uwbData;
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	homeScreen = HomeScreen(Obd2ClientService());
+	homeScreen = HomeScreen(Obd2ClientService(), ServerConnect(), lambda : 0);
 	homeScreen.show();
 	sys.exit(app.exec_())

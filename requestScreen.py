@@ -26,9 +26,6 @@ class RequestScreen(QWidget):
 		self.backButton.setGeometry(width * 0.02, height * 0.02, width * 0.06, width * 0.06);		
 		self.backButton.clicked.connect(lambda: self.requestWork.emit(constants.HOME_PAGE));
 
-		self.label = QLabel("requestPage");
-		self.layout.addWidget(self.label);
-
 		self.acceptGuideLabel = QLabel(constants.ACCEPT_GUIDE_TEXT);
 		self.layout.addWidget(self.acceptGuideLabel);
 		self.acceptGuideLabel.setStyleSheet("font-size:24px;");

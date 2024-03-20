@@ -37,16 +37,14 @@ class BtClientService:
 			return False;
 
 	def sendStr(self, str):
-		if not self.isConnected() :
-			return;
 		try:
 			self.clientSock.send(str);
+			return True;
 		except Exception as e:
 			print(f"Send Failed: {e}")
+			return False;
 
 	def recvStr(self, len):
-		if not self.isConnected() :
-			return "";
 		try:
 			str = self.clientSock.recv(len);
 			return str;
