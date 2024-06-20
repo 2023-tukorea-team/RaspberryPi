@@ -2,14 +2,16 @@
 import sys;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *
+from getExternalFont import *;
 
 class LoadingTextLabel(QLabel):
 	def __init__(self, text):
 		super().__init__();
 		self.index = 0;
 		self.text = text;
-		self.setText(self.text);
-		self.setStyleSheet("font-size:36px;");
+		self.setText(self.text);	
+		self.setFont(getExternalFont());
+		self.setStyleSheet("background-color: #00060D; font-size:48px; color: #FFFFFF; ");
 		self.setAlignment(Qt.AlignCenter);
 		self.timer = QTimer(self);
 

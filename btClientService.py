@@ -30,7 +30,7 @@ class BtClientService:
 			print(f"Connected with {peer_addr}");
 			return True;
 		except (bluetooth.btcommon.BluetoothError, AttributeError):
-			print("Not Connected");
+			#print("Not Connected");
 			return False;
 		except Exception as e:
 			print(f"Error: {e}");

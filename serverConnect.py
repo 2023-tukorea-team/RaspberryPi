@@ -14,9 +14,9 @@ class ServerConnect:
 		response = requests.post(url, json=data);
 		if response.status_code == 200:
 			result = response.json()
-			print(result);
+			#print(result);
 			if result['result'] == False and result['entry'] == False :
-				print("server DB Error");
+				#print("server DB Error");
 				return False;
 			return True;
 		else :
@@ -36,6 +36,40 @@ class ServerConnect:
 			return True;
 		else:
 			return False;
+
+	def sendCir(self, cir):
+		url = self.serverAddress + query.CIR;
+		data = {'id' : self.macAddress, 
+			'leftdata' : str(list(map(lambda x : round(x, 1), cir[0]))), 
+			'rightdata': str(list(map(lambda x : round(x, 1), cir[1])))};
+
+		print(data);
+		response = requests.post(url, json=data);
+		if response.status_code == 200:
+			result = response.json()
+			print(result);
+			if result['result'] == False : 
+				print("server DB Error");
+				return False;
+			return True;
+		else:
+			return False;
+
+	def sendPoint(self, ltit, lgit):
+		url = self.serverAddress + query.PLACE;
+		data = {'id' : self.macAddress, 'latitude':ltit, 'longitude':lgit};
+		print(data);
+		response = requests.post(url, json=data);
+		if response.status_code == 200:
+			result = response.json()
+			print(result);
+			if result['result'] == False : 
+				print("server DB Error");
+				return False;
+			return True;
+		else:
+			return False;
+
 
 	def getMacAddress(self):
 		return self.macAddress;

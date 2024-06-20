@@ -25,10 +25,15 @@ class Obd2ClientService(BtClientService):
 			raise Exception("getCatStart Failed : Send Error");
 		receivedStr = super().recvStr(1024);
 		receivedStr += super().recvStr(1024);
-		print(f"CarStart : {receivedStr}"); 
+		#print(f"CarStart : {receivedStr}"); 
 		if receivedStr == "":
 			raise Exception("getCartStart Failed : recv Error");
-		if receivedStr[15] == 48 :
+		value = 0;
+		value += self.asciiToDec(receivedStr[11]); value *= 16;
+		value += self.asciiToDec(receivedStr[12]); value *= 16;
+		value += self.asciiToDec(receivedStr[14]); value *= 16;
+		value += self.asciiToDec(receivedStr[15]);
+		if value < 3000 :
 			return False;
 		else:
 			return True;
@@ -39,7 +44,7 @@ class Obd2ClientService(BtClientService):
 			raise Exception("getVehicleSpeed Failed : Send Error");
 		receivedStr = super().recvStr(1024);
 		receivedStr += super().recvStr(1024);
-		print(f"VehicleSpeed : {receivedStr}"); 
+		#print(f"VehicleSpeed : {receivedStr}"); 
 		if receivedStr == "":
 			raise Exception("getVehicleSpeed Failed : recv Error");
 		return 16 * self.asciiToDec(receivedStr[11]) + self.asciiToDec(receivedStr[12]);
@@ -47,15 +52,55 @@ class Obd2ClientService(BtClientService):
 		ret = super().sendStr("0110" + chr(13) + chr(10));
 		receivedStr = super().recvStr(1024);
 		receivedStr += super().recvStr(1024);
-		print(f"DoorLock : {receivedStr}"); 
+		#print(f"DoorLock : {receivedStr}"); 
 		if ret == False:
 			raise Exception("getDoorLock Failed : Send Error");
 		if receivedStr == "":
 			raise Exception("getDoorLock Failed : recv Error");
-		if receivedStr[15] == 48 :
+		value = 0;
+		value += self.asciiToDec(receivedStr[11]); value *= 16;
+		value += self.asciiToDec(receivedStr[12]); value *= 16;
+		value += self. asciiToDec(receivedStr[14]); value *= 16;
+		value += self.asciiToDec(receivedStr[15]);
+		if value < 3000 :
 			return False;
 		else:
 			return True;
+
+	def getTemperature(self):
+		ret = super().sendStr("0105" + chr(13) + chr(10));
+		if ret == False:
+			raise Exception("getVehicleSpeed Failed : Send Error");
+		receivedStr = super().recvStr(1024);
+		receivedStr += super().recvStr(1024);
+		print(f"Temperature : {receivedStr}"); 
+		if receivedStr == "":
+			raise Exception("getVehicleSpeed Failed : recv Error");
+		return 16 * self.asciiToDec(receivedStr[11]) + self.asciiToDec(receivedStr[12]) - 40;
+
+	def getThrottle(self):
+		ret = super().sendStr("0111" + chr(13) + chr(10));
+		if ret == False:
+			raise Exception("getVehicleSpeed Failed : Send Error");
+		receivedStr = super().recvStr(1024);
+		receivedStr += super().recvStr(1024);
+		print(f"Temperature : {receivedStr}"); 
+		if receivedStr == "":
+			raise Exception("getVehicleSpeed Failed : recv Error");
+		return 100 / (16 * self.asciiToDec(receivedStr[11]) + self.asciiToDec(receivedStr[12])) * 255;
+
+
+	def getOxygen(self):
+		ret = super().sendStr("0114" + chr(13) + chr(10));
+		if ret == False:
+			raise Exception("getVehicleSpeed Failed : Send Error");
+		receivedStr = super().recvStr(1024);
+		receivedStr += super().recvStr(1024);
+		print(f"Temperature : {receivedStr}"); 
+		if receivedStr == "":
+			raise Exception("getVehicleSpeed Failed : recv Error");
+		return (16 * self.asciiToDec(receivedStr[11]) + self.asciiToDec(receivedStr[12])) / 200;
+
 
 	def asciiToDec(self, c):
 		if(c >= 48 and c <= 57):

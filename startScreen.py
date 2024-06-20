@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
 from time import sleep;
 from acceptDialog import *;
+from PyQt5.QtGui import QPixmap
 
 class StartScreen(QWidget):
 	requestWork = pyqtSignal(int);

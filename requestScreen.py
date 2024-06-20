@@ -8,51 +8,63 @@ from bluetoothScreen import *;
 from homeScreen import *;
 from PyQt5.QtWidgets import *;
 from PyQt5.QtCore import *;
+import netifaces;
+from getExternalFont import *;
 
 class RequestScreen(QWidget):
 	requestWork = pyqtSignal(int);
 	def __init__(self, serverConnect):
 		super().__init__();
 		self.layout = QVBoxLayout();
+		self.layout.setSpacing(0);
+		self.layout.setContentsMargins(30, 30, 30, 30);	
 		self.setLayout(self.layout);
 
-		width = self.width();
-		height = self.height();
-		self.backIcon = QIcon("back.png");
+		self.navBarWidget = QWidget();
+		self.navBarLayout = QHBoxLayout();
+
+		self.backIcon = QIcon("./image/back.png");
 		self.backButton = QPushButton(self);
 		self.backButton.setIcon(self.backIcon);
-		self.backButton.setIconSize(QSize(width * 0.06, width * 0.06));
-		self.backButton.setStyleSheet("border: none;");
-		self.backButton.setGeometry(width * 0.02, height * 0.02, width * 0.06, width * 0.06);		
-		self.backButton.clicked.connect(lambda: self.requestWork.emit(constants.HOME_PAGE));
+		self.backButton.setIconSize(QSize(100, 100));
+		self.backButton.setStyleSheet("border: none;");	
+		self.backButton.clicked.connect(lambda: self.requestWork.emit(constants.MENU_PAGE));
+		self.navBarLayout.addWidget(self.backButton);
 
-		self.acceptGuideLabel = QLabel(constants.ACCEPT_GUIDE_TEXT);
-		self.layout.addWidget(self.acceptGuideLabel);
-		self.acceptGuideLabel.setStyleSheet("font-size:36px;");
+		self.homeTextLabel = QLabel(self);
+		self.homeTextLabel.setText("CERT REQUEST");
+		self.homeTextLabel.setStyleSheet("font-size:72px; color: #FFFFFF; ");
+		self.navBarLayout.addWidget(self.homeTextLabel);
+
+
+		self.navBarLayout.addStretch();
+		self.navBarWidget.setLayout(self.navBarLayout);
+		self.navBarWidget.setFixedHeight(120);	
+		self.layout.addWidget(self.navBarWidget);
+
+		#self.acceptGuideLabel = QLabel(constants.ACCEPT_GUIDE_TEXT);
+		#self.layout.addWidget(self.acceptGuideLabel);
+		#self.acceptGuideLabel.setStyleSheet("font-size:36px;");
 
 		self.listView = QListView();
 		self.layout.addWidget(self.listView);
 		self.model = QStringListModel();
 		self.listView.setModel(self.model);
-		self.listView.setStyleSheet("font-size:36px;");
+		self.listView.setStyleSheet("font-size:60px; background-color: #FFFFFF; ");
 		self.selectedRequest = None;
 
 		self.deleteButton = QPushButton(constants.DELETE_TEXT);
-		self.deleteButton.setStyleSheet("font-size:36px;");
+		self.deleteButton.setStyleSheet("font-size:60px;");
 		self.deleteButton.clicked.connect(self.deleteButtonClicked);
+		#self.layout.addWidget(self.deleteButton);
 
-		self.layout.addWidget(self.deleteButton);
+		self.addressLabel = QLabel("½Äº° ID : " + netifaces.ifaddresses('eth0')[netifaces.AF_LINK][0]['addr']);
+		self.addressLabel.setFont(getExternalFont());
+		self.addressLabel.setStyleSheet("font-size:60px; color:#FFFFFF");
+		self.addressLabel.setFixedHeight(100);
+		self.layout.addWidget(self.addressLabel);
 
 		self.requestList = [];
-
-	def deleteButtonClicked(self):
-		selectedIndex = self.getSelectedRequestIndex();
-		if selectedIndex == -1 :
-			return;
-		self.selectedRequest =  self.requestList[selectedIndex];
-		print(self.selectedRequest[0]);
-		self.requestList.pop(selectedIndex);
-		self.setItems(self.requestList);
 	
 	def getSelectedRequestIndex(self):
 		if len(self.requestList) == 0:
@@ -72,18 +84,6 @@ class RequestScreen(QWidget):
 	def setItems(self, items):
 		self.model.setStringList(items);
 
-	def resizeEvent(self, event):
-		width = self.width();
-		height = self.height();
-		leftMargin = width * 0.1;
-		topMargin = height * 0.1;
-		rightMargin = width * 0.1;
-		bottomMargin = height * 0.1;
-		self.layout.setContentsMargins(leftMargin, topMargin, rightMargin, bottomMargin);
-		self.backButton.setIconSize(QSize(width * 0.06, width * 0.06));
-		self.backButton.setStyleSheet("border: none;");
-		self.backButton.setGeometry(width * 0.02, height * 0.02, width * 0.06, width * 0.06);
-
 	def addRequest(self, client, userData, message):
 		recvMsg = message.payload.decode('utf-8');
 		print("Received message:", recvMsg);
@@ -92,11 +92,25 @@ class RequestScreen(QWidget):
 		for item in items:
 			key, value = item.split("=");
 			data[key.strip()] = value.strip();
+		if items[0][0] == 'r' :
+			request = data["request"];
+			if request == "open" or request == "close" :
+				print(f"window {request} request received");
+				return;
 		id = data["id"];
 		code = data["code"];
-		string = constants.CONNECT_REQUEST_USER_ID_TEXT + " : " + id + "\n" + constants.CODE_TEXT + " : " + code;
+		string = "   " + constants.CONNECT_REQUEST_USER_ID_TEXT + " : " + id + "\n" + "   " + constants.CODE_TEXT + " : " + code;
 		print(string);
 		self.requestList.append(string);
+		self.setItems(self.requestList);
+	
+	def deleteButtonClicked(self):
+		selectedIndex = self.getSelectedRequestIndex();
+		if selectedIndex == -1 :
+			return;
+		self.selectedRequest =  self.requestList[selectedIndex];
+		print(self.selectedRequest[0]);
+		self.requestList.pop(selectedIndex);
 		self.setItems(self.requestList);
 
 if __name__ ==  '__main__':
