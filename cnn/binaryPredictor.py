@@ -5,6 +5,7 @@ import sys;
 
 class BinaryPredictor() :
 	def __init__(self, modelPath):
+	# .ftlite 확장자 모델
 		self.interpreter = loadModel(modelPath);
 		self.interpreter.allocate_tensors();
 		self.inputDetails = self.interpreter.get_input_details();
